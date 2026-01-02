@@ -21,6 +21,7 @@ function LoginForm() {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [error, setError] = useState<string | null>(searchParams.get("error") === "unauthorized" ? "Você precisa fazer login primeiro." : null);
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
     // Helper to validate email (CinthiaMed Logic)
     const validateEmail = (email: string) => {
@@ -93,6 +94,14 @@ function LoginForm() {
 
             if (result?.error) {
                 setError(result.error);
+                setSuccessMessage(null);
+            } else if (result?.message) {
+                setSuccessMessage(result.message);
+                setError(null);
+                // Mudar para tela de login após criar conta
+                setTimeout(() => {
+                    setIsLogin(true);
+                }, 3000);
             }
         });
     };
@@ -310,6 +319,13 @@ function LoginForm() {
                             </div>
                         )}
 
+                        {/* Success Message */}
+                        {successMessage && (
+                            <div className="p-3 bg-green-500/10 border border-green-500/30 rounded-lg text-green-400 text-sm text-center">
+                                {successMessage}
+                            </div>
+                        )}
+
                         {/* Error Message */}
                         {error && (
                             <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm text-center">
@@ -326,6 +342,7 @@ function LoginForm() {
                                     onClick={() => {
                                         setIsLogin(!isLogin);
                                         setError(null);
+                                        setSuccessMessage(null);
                                     }}
                                     className="text-purple-500 font-semibold ml-1.5 hover:underline"
                                 >

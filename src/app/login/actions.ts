@@ -30,10 +30,11 @@ export async function signup(formData: FormData) {
     const password = formData.get('password') as string
     const fullName = formData.get('fullName') as string
 
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
+            emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
             data: {
                 full_name: fullName,
                 avatar_url: '',
@@ -45,6 +46,15 @@ export async function signup(formData: FormData) {
         return { error: error.message }
     }
 
+    // Se o email precisa ser confirmado, não redireciona
+    if (data?.user && !data.user.confirmed_at) {
+        return {
+            error: null,
+            message: 'Conta criada! Por favor, verifique seu email para confirmar o cadastro.'
+        }
+    }
+
+    // Se não precisa confirmação, já faz login
     revalidatePath('/', 'layout')
     redirect('/dashboard')
 }
