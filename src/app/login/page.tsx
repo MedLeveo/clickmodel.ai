@@ -1,12 +1,12 @@
 "use client";
 
-import { useTransition, useState } from "react";
+import { useTransition, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Sparkles, Eye, EyeOff, Globe, Sun } from "lucide-react"; // Icons
 import { login, signup, signInWithGoogle } from "./actions"; // Backend Actions
 
-export default function LoginPage() {
+function LoginForm() {
     const searchParams = useSearchParams();
     const [isPending, startTransition] = useTransition();
     const [isLogin, setIsLogin] = useState(true);
@@ -374,5 +374,23 @@ export default function LoginPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function LoginPage() {
+    return (
+        <Suspense fallback={
+            <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                minHeight: '100vh',
+                background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #1e1b4b 100%)',
+            }}>
+                <div className="text-white text-lg">Carregando...</div>
+            </div>
+        }>
+            <LoginForm />
+        </Suspense>
     );
 }
