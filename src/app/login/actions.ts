@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { sendWelcomeEmail } from '@/lib/email/emailService'
 
 export async function login(formData: FormData) {
     const supabase = await createClient()
@@ -46,11 +47,22 @@ export async function signup(formData: FormData) {
         return { error: error.message }
     }
 
+    // Enviar email de boas-vindas (não bloqueia o signup se falhar)
+    if (data?.user) {
+        try {
+            await sendWelcomeEmail(email, fullName);
+            console.log('✅ Email de boas-vindas enviado para:', email);
+        } catch (emailError) {
+            console.error('⚠️ Erro ao enviar email de boas-vindas:', emailError);
+            // Não bloqueia o signup se email falhar
+        }
+    }
+
     // Se o email precisa ser confirmado, não redireciona
     if (data?.user && !data.user.confirmed_at) {
         return {
             error: null,
-            message: 'Conta criada! Por favor, verifique seu email para confirmar o cadastro.'
+            message: 'Conta criada com sucesso! Você já pode fazer login.'
         }
     }
 
