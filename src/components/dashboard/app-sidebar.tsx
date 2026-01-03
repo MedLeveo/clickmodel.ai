@@ -12,6 +12,10 @@ import {
     Sparkles
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { createClient } from "@/lib/supabase/client";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import type { User } from "@supabase/supabase-js";
 
 const sidebarItems = [
     {
@@ -39,6 +43,35 @@ const sidebarItems = [
 
 export function AppSidebar() {
     const pathname = usePathname();
+    const router = useRouter();
+    const [user, setUser] = useState<User | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const supabase = createClient();
+
+        // Get initial user
+        supabase.auth.getUser().then(({ data: { user } }) => {
+            setUser(user);
+            setLoading(false);
+        });
+
+        // Listen for auth changes
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            setUser(session?.user ?? null);
+        });
+
+        return () => subscription.unsubscribe();
+    }, []);
+
+    const handleLogout = async () => {
+        const supabase = createClient();
+        await supabase.auth.signOut();
+        router.push('/login');
+    };
+
+    const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Usuário';
+    const userEmail = user?.email || 'usuario@exemplo.com';
 
     return (
         <div className="flex flex-col h-screen w-64 bg-white border-r border-slate-200">
@@ -49,7 +82,7 @@ export function AppSidebar() {
                     <div className="bg-gradient-to-tr from-purple-600 to-pink-600 p-1.5 rounded-lg">
                         <Sparkles className="w-5 h-5 text-white" />
                     </div>
-                    <span className="font-bold text-lg text-slate-900 tracking-tight">Modelize.AI</span>
+                    <span className="font-bold text-lg text-slate-900 tracking-tight">ClickModel.AI</span>
                 </div>
             </div>
 
@@ -79,13 +112,21 @@ export function AppSidebar() {
             {/* Footer / User Profile */}
             <div className="p-4 border-t border-slate-100">
                 <div className="flex items-center gap-3 mb-4 px-2">
-                    <div className="w-8 h-8 rounded-full bg-slate-200" />
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-semibold text-sm">
+                        {userName.charAt(0).toUpperCase()}
+                    </div>
                     <div className="flex-1 overflow-hidden">
-                        <p className="text-sm font-medium text-slate-900 truncate">Usuário</p>
-                        <p className="text-xs text-slate-500 truncate">usuario@exemplo.com</p>
+                        <p className="text-sm font-medium text-slate-900 truncate">{userName}</p>
+                        <p className="text-xs text-slate-500 truncate">{userEmail}</p>
                     </div>
                 </div>
-                <Button variant="ghost" className="w-full justify-start text-red-500 hover:text-red-600 hover:bg-red-50" size="sm">
+                <Button
+                    variant="ghost"
+                    className="w-full justify-start text-red-500 hover:text-red-600 hover:bg-red-50"
+                    size="sm"
+                    onClick={handleLogout}
+                    disabled={loading}
+                >
                     <LogOut className="w-4 h-4 mr-2" />
                     Sair
                 </Button>

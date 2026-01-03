@@ -63,12 +63,17 @@ export default function Dashboard() {
 
     async function fetchProfile(userId: string) {
         const { data, error } = await supabase
-            .from('profiles')
-            .select('credits')
-            .eq('id', userId)
+            .from('user_credits')
+            .select('monthly_credits, bonus_credits')
+            .eq('user_id', userId)
             .single();
 
-        if (data) setCredits(data.credits);
+        if (data) {
+            const totalCredits = (data.monthly_credits || 0) + (data.bonus_credits || 0);
+            setCredits(totalCredits);
+        } else {
+            setCredits(0);
+        }
     }
 
     async function fetchHistory(userId: string) {
