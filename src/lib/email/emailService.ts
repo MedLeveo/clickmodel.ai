@@ -87,7 +87,7 @@ async function sendEmail({
  */
 export async function sendVerificationEmail(email: string, name: string, verificationToken: string) {
   try {
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://clickmodelai.vercel.app';
     const verifyUrl = `${siteUrl}/verify-email?token=${verificationToken}`;
 
     const tpl = emailTemplates.emailVerification;
@@ -159,7 +159,7 @@ export async function sendWelcomeEmail(email: string, name: string) {
   try {
     const tpl = emailTemplates.welcome;
     const cfg = emailTemplates.config;
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://clickmodelai.vercel.app';
 
     const htmlContent = `
       <!DOCTYPE html>
@@ -216,7 +216,7 @@ export async function sendWelcomeEmail(email: string, name: string) {
  */
 export async function sendPasswordResetEmail(email: string, resetToken: string) {
   try {
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://clickmodelai.vercel.app';
     const resetUrl = `${siteUrl}/reset-password?token=${resetToken}`;
 
     const tpl = emailTemplates.passwordReset;

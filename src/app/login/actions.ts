@@ -73,7 +73,7 @@ export async function signup(formData: FormData) {
 
 export async function signInWithGoogle() {
     const supabase = await createClient()
-    const origin = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'; // Need to configure this based on env
+    const origin = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://clickmodelai.vercel.app';
 
     const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
