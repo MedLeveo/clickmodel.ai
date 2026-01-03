@@ -12,19 +12,27 @@ export async function GET(request: Request) {
         const supabase = await createClient()
         const { error } = await supabase.auth.exchangeCodeForSession(code)
         if (!error) {
+            // Pegar a URL correta do ambiente
+            const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://clickmodelai.vercel.app'
             const forwardedHost = request.headers.get('x-forwarded-host') // original origin before load balancer
             const isLocalEnv = process.env.NODE_ENV === 'development'
+
             if (isLocalEnv) {
-                // we can be sure that there is no load balancer in between, so no need to watch for X-Forwarded-Host
+                // Ambiente local - usar origin da requisição
                 return NextResponse.redirect(`${origin}${next}`)
             } else if (forwardedHost) {
+                // Produção com load balancer (Vercel)
                 return NextResponse.redirect(`https://${forwardedHost}${next}`)
             } else {
-                return NextResponse.redirect(`${origin}${next}`)
+                // Fallback - usar variável de ambiente ao invés de origin
+                return NextResponse.redirect(`${siteUrl}${next}`)
             }
         }
     }
 
     // return the user to an error page with instructions
-    return NextResponse.redirect(`${origin}/login?error=oauth_error`)
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://clickmodelai.vercel.app'
+    const isLocalEnv = process.env.NODE_ENV === 'development'
+    const errorUrl = isLocalEnv ? `${origin}/login?error=oauth_error` : `${siteUrl}/login?error=oauth_error`
+    return NextResponse.redirect(errorUrl)
 }
