@@ -95,7 +95,7 @@ function LoginForm() {
             if (result?.error) {
                 setError(result.error);
                 setSuccessMessage(null);
-            } else if (result?.message) {
+            } else if (result && 'message' in result && result.message) {
                 setSuccessMessage(result.message);
                 setError(null);
                 // Mudar para tela de login após criar conta
