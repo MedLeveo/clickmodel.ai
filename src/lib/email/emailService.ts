@@ -42,7 +42,7 @@ async function sendEmail({
     return null;
   }
 
-  const from = fromEmail || process.env.SENDGRID_FROM_EMAIL || 'noreply@clickmodel.ai';
+  const from = fromEmail || process.env.SENDGRID_FROM_EMAIL || 'clickmodelai@gmail.com';
 
   try {
     console.log(`📧 Enviando email via SendGrid para: ${to}`);
